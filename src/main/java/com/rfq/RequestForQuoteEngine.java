@@ -21,8 +21,7 @@ public class RequestForQuoteEngine {
             return NO_QUOTE;
         } else {
             Price registeredPrice = orders.get(0).price();
-            return new Quote(registeredPrice.adjustBy(price -> price + PRICE_DIFFERENCE), registeredPrice.adjustBy(price -> price - PRICE_DIFFERENCE));
+            return new Quote(registeredPrice.adjustBy(price -> price - PRICE_DIFFERENCE), registeredPrice.adjustBy(price -> price + PRICE_DIFFERENCE));
         }
-
     }
 }

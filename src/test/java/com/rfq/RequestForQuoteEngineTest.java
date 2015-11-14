@@ -34,7 +34,7 @@ public class RequestForQuoteEngineTest implements LiveOrderService {
     @Test public void
     priceWeBuyAtIsTheValueOfTheProfit_WhenRegisteredClientBuyOrdersPriceIsZero() {
         liveOrderServiceStub = aLiveOrderService()
-                .withOrder(BUY, new Price(0.0), USD, new Amount(100))
+                .withOrder(BUY, new Price(0.04), USD, new Amount(100))
                 .build();
 
         Quote quote = requestForQuoteEngine.request(new Amount(100), USD);
@@ -45,7 +45,7 @@ public class RequestForQuoteEngineTest implements LiveOrderService {
     @Test public void
     priceWeSellAtIsTheValueOfTheProfit_WhenRegisteredClientSellOrdersIsTwiceTheProfit() {
         liveOrderServiceStub = aLiveOrderService()
-                .withOrder(Direction.SELL, new Price(0.04), USD, new Amount(100))
+                .withOrder(Direction.SELL, new Price(0.00), USD, new Amount(100))
                 .build();
 
         Quote quote = requestForQuoteEngine.request(new Amount(100), USD);
@@ -61,7 +61,7 @@ public class RequestForQuoteEngineTest implements LiveOrderService {
 
         Quote quote = requestForQuoteEngine.request(new Amount(100), USD);
 
-        assertThat(quote.bid(), is(new Price(100.02)));
+        assertThat(quote.bid(), is(new Price(99.98)));
     }
 
     @Test public void
@@ -72,7 +72,7 @@ public class RequestForQuoteEngineTest implements LiveOrderService {
 
         Quote quote = requestForQuoteEngine.request(new Amount(100), USD);
 
-        assertThat(quote.ask(), is(new Price(99.98)));
+        assertThat(quote.ask(), is(new Price(100.02)));
     }
 
     @Override
