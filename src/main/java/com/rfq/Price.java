@@ -10,8 +10,8 @@ public class Price {
         this.value = vaule;
     }
 
-    public static Function<Price, Price> adjustPriceBy(Function<Double, Double> operation) {
-        return (Price actualAmount) -> new Price(operation.apply(actualAmount.value));
+    public Price adjustBy(Function<Double, Double> func) {
+        return new Price(func.apply(value));
     }
 
     @Override
