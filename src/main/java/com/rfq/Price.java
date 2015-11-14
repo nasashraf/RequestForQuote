@@ -10,7 +10,7 @@ public class Price {
         this.value = vaule;
     }
 
-    public Price adjustBy(Function<Double, Double> func) {
+    public Price adjustUsing(Function<Double, Double> func) {
         return new Price(func.apply(value));
     }
 

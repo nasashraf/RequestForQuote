@@ -1,12 +1,15 @@
 package com.rfq;
 
 import java.util.List;
+import java.util.function.Function;
 
 import static com.rfq.Quote.NO_QUOTE;
 
 public class RequestForQuoteEngine {
 
     private static final Double PRICE_DIFFERENCE = 0.02;
+    private static final Function<Double, Double> ASK_ADJSUTER = price -> price + PRICE_DIFFERENCE;
+    private static final Function<Double, Double> BID_ADUSTER = price -> price - PRICE_DIFFERENCE;
 
     private final LiveOrderService liveOrderService;
 
@@ -21,7 +24,7 @@ public class RequestForQuoteEngine {
             return NO_QUOTE;
         } else {
             Price registeredPrice = orders.get(0).price();
-            return new Quote(registeredPrice.adjustBy(price -> price - PRICE_DIFFERENCE), registeredPrice.adjustBy(price -> price + PRICE_DIFFERENCE));
+            return new Quote(registeredPrice.adjustUsing(BID_ADUSTER), registeredPrice.adjustUsing(ASK_ADJSUTER));
         }
     }
 }
