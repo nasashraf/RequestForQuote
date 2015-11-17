@@ -2,7 +2,8 @@ package com.rfq;
 
 import java.util.function.Function;
 
-public class Price {
+public class Price implements Comparable<Price> {
+    public static final Price NO_PRICE = new Price(-1.0);
 
     private final Double value;
 
@@ -36,5 +37,10 @@ public class Price {
         return "Price{" +
                 "value=" + value +
                 '}';
+    }
+
+    @Override
+    public int compareTo(Price price) {
+        return value.compareTo(price.value);
     }
 }

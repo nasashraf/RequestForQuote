@@ -7,6 +7,7 @@ import java.util.List;
 
 import static com.rfq.Currency.USD;
 import static com.rfq.Direction.BUY;
+import static com.rfq.Direction.SELL;
 import static com.rfq.LiveOrderServiceBuilder.aLiveOrderService;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -45,7 +46,7 @@ public class RequestForQuoteEngineTest implements LiveOrderService {
     @Test public void
     priceWeSellAtIsTheValueOfTheProfit_WhenRegisteredClientSellOrdersIsTwiceTheProfit() {
         liveOrderServiceStub = aLiveOrderService()
-                .withOrder(Direction.SELL, new Price(0.00), USD, new Amount(100))
+                .withOrder(SELL, new Price(0.00), USD, new Amount(100))
                 .build();
 
         Quote quote = requestForQuoteEngine.request(new Amount(100), USD);
@@ -67,12 +68,60 @@ public class RequestForQuoteEngineTest implements LiveOrderService {
     @Test public void
     priceWeSellAtIsRegisteredSellOrderMinusProfit_WhenOnlySingleClientBuyOrderRegistered() {
         liveOrderServiceStub = aLiveOrderService()
-                .withOrder(BUY, new Price(100.0), USD, new Amount(100))
+                .withOrder(SELL, new Price(100.0), USD, new Amount(100))
                 .build();
 
         Quote quote = requestForQuoteEngine.request(new Amount(100), USD);
 
         assertThat(quote.ask(), is(new Price(100.02)));
+    }
+
+    @Test public void
+    bidPriceIsHighestBuyPrice_WhenMultipleClientBuyOrdersRegistered() {
+        liveOrderServiceStub = aLiveOrderService()
+                .withOrder(BUY, new Price(100.0), USD, new Amount(100))
+                .withOrder(BUY, new Price(200.0), USD, new Amount(100))
+                .build();
+
+        Quote quote = requestForQuoteEngine.request(new Amount(100), USD);
+
+        assertThat(quote.bid(), is(new Price(199.98)));
+    }
+
+    @Test public void
+    askPriceIsLowestSellPrice_WhenMultipleClientSellOrdersRegistered() {
+        liveOrderServiceStub = aLiveOrderService()
+                .withOrder(SELL, new Price(200.0), USD, new Amount(100))
+                .withOrder(SELL, new Price(100.0), USD, new Amount(100))
+                .build();
+
+        Quote quote = requestForQuoteEngine.request(new Amount(100), USD);
+
+        assertThat(quote.ask(), is(new Price(100.02)));
+    }
+
+    @Test public void
+    bidPriceIsBuyPrice_WhenSingleClientBuyAndSellOrdersRegistered() {
+        liveOrderServiceStub = aLiveOrderService()
+                .withOrder(BUY, new Price(100.0), USD, new Amount(100))
+                .withOrder(SELL, new Price(200.0), USD, new Amount(100))
+                .build();
+
+        Quote quote = requestForQuoteEngine.request(new Amount(100), USD);
+
+        assertThat(quote.bid(), is(new Price(99.98)));
+    }
+
+    @Test public void
+    askPriceIsSellPrice_WhenSingleClientBuyAndSellOrdersRegistered() {
+        liveOrderServiceStub = aLiveOrderService()
+                .withOrder(SELL, new Price(200.0), USD, new Amount(100))
+                .withOrder(BUY, new Price(100.0), USD, new Amount(100))
+                .build();
+
+        Quote quote = requestForQuoteEngine.request(new Amount(100), USD);
+
+        assertThat(quote.ask(), is(new Price(200.02)));
     }
 
     @Override
