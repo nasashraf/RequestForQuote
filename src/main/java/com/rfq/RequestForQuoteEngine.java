@@ -4,23 +4,18 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.rfq.Direction.BUY;
 import static com.rfq.Direction.SELL;
-import static com.rfq.Price.NO_PRICE;
 import static com.rfq.Quote.NO_QUOTE;
-import static java.util.Collections.max;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.maxBy;
 
 public class RequestForQuoteEngine {
 
     private static final Double PRICE_DIFFERENCE = 0.02;
     private static final Function<Double, Double> ASK_ADJSUTER = price -> price + PRICE_DIFFERENCE;
     private static final Function<Double, Double> BID_ADUSTER = price -> price - PRICE_DIFFERENCE;
-    private static final Comparator<Price> COMPARE_PRICE = comparing(price -> price);
 
     private final LiveOrderService liveOrderService;
 
@@ -34,19 +29,14 @@ public class RequestForQuoteEngine {
         if (orders.isEmpty()) {
             return NO_QUOTE;
         } else {
-            Price highestBidPrice = orders.stream()
-                                         .filter(order -> order.direction() == BUY)
-                                         .map(Order::price)
-                                         .max(COMPARE_PRICE)
-                                         .orElse(NO_PRICE);
+            Map<Direction, List<Order>> ordersPerDirection = orders.stream()
+                                                                .sorted(comparing(Order::price))
+                                                                .collect(groupingBy(Order::direction));
 
-            Price lowestPrice = orders.stream()
-                                    .filter(order -> order.direction() == SELL)
-                                    .map(Order::price)
-                                    .min(COMPARE_PRICE)
-                                    .orElse(NO_PRICE);
+            Order highestPricedBuy = ordersPerDirection.get(BUY).get(ordersPerDirection.get(BUY).size() - 1);
+            Order lowestPricedSell = ordersPerDirection.get(SELL).get(0);
 
-            return new Quote(highestBidPrice.adjustUsing(BID_ADUSTER), lowestPrice.adjustUsing(ASK_ADJSUTER));
+            return new Quote(highestPricedBuy.price().adjustUsing(BID_ADUSTER), lowestPricedSell.price().adjustUsing(ASK_ADJSUTER));
         }
     }
 }

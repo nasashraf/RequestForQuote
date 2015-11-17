@@ -36,6 +36,7 @@ public class RequestForQuoteEngineTest implements LiveOrderService {
     priceWeBuyAtIsTheValueOfTheProfit_WhenRegisteredClientBuyOrdersPriceIsZero() {
         liveOrderServiceStub = aLiveOrderService()
                 .withOrder(BUY, new Price(0.04), USD, new Amount(100))
+                .withOrder(SELL, new Price(0.04), USD, new Amount(100))
                 .build();
 
         Quote quote = requestForQuoteEngine.request(new Amount(100), USD);
@@ -47,6 +48,7 @@ public class RequestForQuoteEngineTest implements LiveOrderService {
     priceWeSellAtIsTheValueOfTheProfit_WhenRegisteredClientSellOrdersIsTwiceTheProfit() {
         liveOrderServiceStub = aLiveOrderService()
                 .withOrder(SELL, new Price(0.00), USD, new Amount(100))
+                .withOrder(BUY, new Price(0.00), USD, new Amount(100))
                 .build();
 
         Quote quote = requestForQuoteEngine.request(new Amount(100), USD);
@@ -58,6 +60,7 @@ public class RequestForQuoteEngineTest implements LiveOrderService {
     priceWeBuyAtIsRegisteredBuyOrderPlusProfit_WhenOnlySingleClientBuyOrderRegistered() {
         liveOrderServiceStub = aLiveOrderService()
                 .withOrder(BUY, new Price(100.0), USD, new Amount(100))
+                .withOrder(SELL, new Price(100.0), USD, new Amount(100))
                 .build();
 
         Quote quote = requestForQuoteEngine.request(new Amount(100), USD);
@@ -69,6 +72,7 @@ public class RequestForQuoteEngineTest implements LiveOrderService {
     priceWeSellAtIsRegisteredSellOrderMinusProfit_WhenOnlySingleClientBuyOrderRegistered() {
         liveOrderServiceStub = aLiveOrderService()
                 .withOrder(SELL, new Price(100.0), USD, new Amount(100))
+                .withOrder(BUY, new Price(100.0), USD, new Amount(100))
                 .build();
 
         Quote quote = requestForQuoteEngine.request(new Amount(100), USD);
@@ -81,6 +85,7 @@ public class RequestForQuoteEngineTest implements LiveOrderService {
         liveOrderServiceStub = aLiveOrderService()
                 .withOrder(BUY, new Price(100.0), USD, new Amount(100))
                 .withOrder(BUY, new Price(200.0), USD, new Amount(100))
+                .withOrder(SELL, new Price(200.0), USD, new Amount(100))
                 .build();
 
         Quote quote = requestForQuoteEngine.request(new Amount(100), USD);
@@ -93,6 +98,7 @@ public class RequestForQuoteEngineTest implements LiveOrderService {
         liveOrderServiceStub = aLiveOrderService()
                 .withOrder(SELL, new Price(200.0), USD, new Amount(100))
                 .withOrder(SELL, new Price(100.0), USD, new Amount(100))
+                .withOrder(BUY, new Price(100.0), USD, new Amount(100))
                 .build();
 
         Quote quote = requestForQuoteEngine.request(new Amount(100), USD);
