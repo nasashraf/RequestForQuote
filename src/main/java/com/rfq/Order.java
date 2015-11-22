@@ -21,4 +21,9 @@ public class Order {
     Direction direction() {
         return direction;
     }
+
+    public Amount amount() {
+        return amount;
+    }
+
 }
