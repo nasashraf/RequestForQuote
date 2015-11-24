@@ -1,6 +1,6 @@
 package com.rfq;
 
-import java.util.*;
+import java.util.List;
 import java.util.function.Function;
 
 import static com.rfq.Direction.BUY;
@@ -27,14 +27,14 @@ public class RequestForQuoteEngine {
         if (orders.isEmpty()) {
             return NO_QUOTE;
         } else {
-            Map<Direction, Optional<Order>> orderForDirection = orders.stream()
-                                                                    .sorted(comparing(Order::price))
-                                                                    .collect(collectingAndThen(groupingBy(order -> order.direction(),
-                                                                                                          reducing((a, b) -> a.direction().compare(a, b))),
-                                                                                               result -> {return Collections.unmodifiableMap(new HashMap<>(result));}
-                                                                    ));
+            Quote quote = orders.stream()
+                                .sorted(comparing(Order::price))
+                                .collect(collectingAndThen(groupingBy(order -> order.direction(),
+                                                                      reducing((a, b) -> a.direction().compare(a, b))),
+                                                           result -> {return new Quote(result.get(BUY).get().price().adjustUsing(BID_ADJUSTER), result.get(SELL).get().price().adjustUsing(ASK_ADJUSTER));}
+                                ));
 
-            return new Quote(orderForDirection.get(BUY).get().price().adjustUsing(BID_ADJUSTER), orderForDirection.get(SELL).get().price().adjustUsing(ASK_ADJUSTER));
+            return quote;
         }
     }
 }
