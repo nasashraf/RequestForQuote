@@ -1,16 +1,13 @@
 package com.rfq;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 import static com.rfq.Direction.BUY;
 import static com.rfq.Direction.SELL;
 import static com.rfq.Quote.NO_QUOTE;
 import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.reducing;
+import static java.util.stream.Collectors.*;
 
 public class RequestForQuoteEngine {
 
@@ -32,8 +29,9 @@ public class RequestForQuoteEngine {
         } else {
             Map<Direction, Optional<Order>> orderForDirection = orders.stream()
                                                                     .sorted(comparing(Order::price))
-                                                                    .collect(groupingBy(Order::direction,
-                                                                                        reducing((a, b) -> a.direction().compare(a, b))
+                                                                    .collect(collectingAndThen(groupingBy(order -> order.direction(),
+                                                                                                          reducing((a, b) -> a.direction().compare(a, b))),
+                                                                                               result -> {return Collections.unmodifiableMap(new HashMap<>(result));}
                                                                     ));
 
             return new Quote(orderForDirection.get(BUY).get().price().adjustUsing(BID_ADJUSTER), orderForDirection.get(SELL).get().price().adjustUsing(ASK_ADJUSTER));
