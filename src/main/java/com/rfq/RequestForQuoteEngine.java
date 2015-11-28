@@ -28,7 +28,7 @@ public class RequestForQuoteEngine {
                             .filter(order -> order.amount().equals(amount))
                             .filter(order -> order.currency().equals(currency))
                             .collect(collectingAndThen(groupingBy(Order::direction,
-                                                                  reducing(NO_ORDER, (a, b) -> a.direction().compare(a, b))),
+                                                                  reducing(NO_ORDER, (a, b) -> a.compareTo(b))),
                                                        result -> {return aQuote(result.getOrDefault(BUY, NO_ORDER).price().adjustUsing(BID_ADJUSTER),
                                                                                 result.getOrDefault(SELL, NO_ORDER).price().adjustUsing(ASK_ADJUSTER));}
                             ));
