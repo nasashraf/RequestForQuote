@@ -5,8 +5,8 @@ import java.util.function.Function;
 
 import static com.rfq.Direction.BUY;
 import static com.rfq.Direction.SELL;
-import static com.rfq.Quote.NO_QUOTE;
-import static java.util.Comparator.comparing;
+import static com.rfq.Order.NO_ORDER;
+import static com.rfq.Quote.aQuote;
 import static java.util.stream.Collectors.*;
 
 public class RequestForQuoteEngine {
@@ -24,17 +24,15 @@ public class RequestForQuoteEngine {
     public Quote request(Amount amount, Currency currency) {
         List<Order> orders = liveOrderService.request(currency);
 
-        if (orders.isEmpty()) {
-            return NO_QUOTE;
-        } else {
-            Quote quote = orders.stream()
-                                .sorted(comparing(Order::price))
-                                .collect(collectingAndThen(groupingBy(order -> order.direction(),
-                                                                      reducing((a, b) -> a.direction().compare(a, b))),
-                                                           result -> {return new Quote(result.get(BUY).get().price().adjustUsing(BID_ADJUSTER), result.get(SELL).get().price().adjustUsing(ASK_ADJUSTER));}
-                                ));
+        Quote quote = orders.stream()
+                            .filter(order -> order.amount().equals(amount))
+                            .filter(order -> order.currency().equals(currency))
+                            .collect(collectingAndThen(groupingBy(Order::direction,
+                                                                  reducing(NO_ORDER, (a, b) -> a.direction().compare(a, b))),
+                                                       result -> {return aQuote(result.getOrDefault(BUY, NO_ORDER).price().adjustUsing(BID_ADJUSTER),
+                                                                                result.getOrDefault(SELL, NO_ORDER).price().adjustUsing(ASK_ADJUSTER));}
+                            ));
 
-            return quote;
-        }
+        return quote;
     }
 }

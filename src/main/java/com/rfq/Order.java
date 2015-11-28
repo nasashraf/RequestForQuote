@@ -7,6 +7,8 @@ public class Order {
     private final Currency currency;
     private final Amount amount;
 
+    public static final Order NO_ORDER = new Order(Direction.NO_DIRECTION, Price.NO_PRICE, null, new Amount(-1));
+
     Order(final Direction direction, final Price price, final Currency currency, final Amount amount) {
         this.direction = direction;
         this.price = price;
@@ -22,8 +24,21 @@ public class Order {
         return direction;
     }
 
-    public Amount amount() {
+    Amount amount() {
         return amount;
     }
 
+    Currency currency() {
+        return currency;
+    }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "direction=" + direction +
+                ", price=" + price +
+                ", currency=" + currency +
+                ", amount=" + amount +
+                '}';
+    }
 }

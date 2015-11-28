@@ -3,7 +3,8 @@ package com.rfq;
 public enum Direction {
 
     SELL((compareResult, order1, order2) -> compareResult <= 0 ? order1 : order2),
-    BUY((compareResult, order1, order2) -> compareResult >= 0 ? order1 : order2);
+    BUY((compareResult, order1, order2) -> compareResult >= 0 ? order1 : order2),
+    NO_DIRECTION((compareResult, order1, order2) -> order2);
 
     private OrderComparator orderComparator;
 

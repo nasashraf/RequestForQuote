@@ -1,11 +1,11 @@
 package com.rfq;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
 
+import static com.rfq.Currency.GBP;
 import static com.rfq.Currency.USD;
 import static com.rfq.Direction.BUY;
 import static com.rfq.Direction.SELL;
@@ -160,11 +160,69 @@ public class RequestForQuoteEngineTest implements LiveOrderService {
     }
 
 
-    @Ignore public void
-    noQuote_WhenNoBuyOrderRegisteredForAmount() {
+    @Test public void
+    noQuote_WhenNoBuyOrderRegisteredAtAll() {
+        liveOrderServiceStub = aLiveOrderService()
+                .withOrder(SELL, new Price(100.0), USD, new Amount(100))
+                .build();
+
+        Quote quote = requestForQuoteEngine.request(new Amount(100), USD);
+
+        assertThat(quote, is(NO_QUOTE));
+    }
+
+    @Test public void
+    noQuote_WhenNoSellyOrderRegisteredAtAll() {
+        liveOrderServiceStub = aLiveOrderService()
+                .withOrder(BUY, new Price(100.0), USD, new Amount(100))
+                .build();
+
+        Quote quote = requestForQuoteEngine.request(new Amount(100), USD);
+
+        assertThat(quote, is(NO_QUOTE));
+    }
+
+    @Test public void
+    noQuote_WhenNoBuyOrderRegisteredForAmountRequested() {
         liveOrderServiceStub = aLiveOrderService()
                 .withOrder(BUY, new Price(200.0), USD, new Amount(100))
-                .withOrder(SELL, new Price(200.0), USD, new Amount(100))
+                .withOrder(SELL, new Price(100.0), USD, new Amount(200))
+                .build();
+
+        Quote quote = requestForQuoteEngine.request(new Amount(200), USD);
+
+        assertThat(quote, is(NO_QUOTE));
+    }
+
+    @Test public void
+    noQuote_WhenNoSellOrderRegisteredForAmountRequested() {
+        liveOrderServiceStub = aLiveOrderService()
+                .withOrder(BUY, new Price(200.0), USD, new Amount(200))
+                .withOrder(SELL, new Price(100.0), USD, new Amount(100))
+                .build();
+
+        Quote quote = requestForQuoteEngine.request(new Amount(200), USD);
+
+        assertThat(quote, is(NO_QUOTE));
+    }
+
+    @Test public void
+    noQuote_WhenNoBuyOrderRegisteredForCurrencyRequested() {
+        liveOrderServiceStub = aLiveOrderService()
+                .withOrder(BUY, new Price(200.0), GBP, new Amount(100))
+                .withOrder(SELL, new Price(100.0), USD, new Amount(100))
+                .build();
+
+        Quote quote = requestForQuoteEngine.request(new Amount(100), USD);
+
+        assertThat(quote, is(NO_QUOTE));
+    }
+
+    @Test public void
+    noQuote_WhenNoSellOrderRegisteredForCurrencyRequested() {
+        liveOrderServiceStub = aLiveOrderService()
+                .withOrder(BUY, new Price(200.0), USD, new Amount(100))
+                .withOrder(SELL, new Price(100.0), GBP, new Amount(100))
                 .build();
 
         Quote quote = requestForQuoteEngine.request(new Amount(100), USD);

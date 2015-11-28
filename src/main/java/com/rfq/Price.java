@@ -3,7 +3,17 @@ package com.rfq;
 import java.util.function.Function;
 
 public class Price implements Comparable<Price> {
-    public static final Price NO_PRICE = new Price(-1.0);
+
+    public static final Price NO_PRICE = new Price(-1.0) {
+        public Price adjustUsing(Function<Double, Double> func) {
+            return new Price(-1.0);
+        }
+
+        @Override
+        public String toString() {
+            return "NO_PRICE";
+        }
+    };
 
     private final Double value;
 
