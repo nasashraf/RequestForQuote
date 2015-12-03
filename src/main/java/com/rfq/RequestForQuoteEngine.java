@@ -3,6 +3,7 @@ package com.rfq;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import static com.rfq.Direction.BUY;
@@ -35,12 +36,16 @@ public class RequestForQuoteEngine {
                             .filter(order -> order.amount().equals(amount))
                             .filter(order -> order.currency().equals(currency))
                             .collect(collectingAndThen(groupingBy(Order::direction, mapping(Order::price, toList())),
-                                                       pricesPerType -> {return aQuote(FIND_MAX_PRICE.apply(pricesPerType.getOrDefault(BUY, EMPTY_PRICE_LIST)).adjustUsing(BID_ADJUSTER),
-                                                                                       FIND_MIN_PRICE.apply(pricesPerType.getOrDefault(SELL, EMPTY_PRICE_LIST)).adjustUsing(ASK_ADJUSTER));}
+                                                       pricesPerDirection -> {return aQuote(FIND_MAX_PRICE.apply(get(BUY).pricesFrom(pricesPerDirection)).adjustUsing(BID_ADJUSTER),
+                                                                                            FIND_MIN_PRICE.apply(get(SELL).pricesFrom(pricesPerDirection)).adjustUsing(ASK_ADJUSTER));}
                                                       )
                                     );
 
         return quote;
+    }
+
+    private PricesForDirection get(Direction direction) {
+        return pricesPerDirection -> pricesPerDirection.getOrDefault(direction, EMPTY_PRICE_LIST);
     }
 
     private static Function<List<Price>, Price> findPriceUsing(Comparator<Price> comp) {
@@ -49,4 +54,10 @@ public class RequestForQuoteEngine {
                                 .findFirst()
                                 .orElse(NO_PRICE);
     }
+
+    @FunctionalInterface
+    private interface PricesForDirection {
+        List<Price> pricesFrom(Map<Direction, List<Price>> pricesPerDirection);
+    }
+
 }
